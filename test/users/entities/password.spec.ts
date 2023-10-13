@@ -1,5 +1,5 @@
 import { type InvalidPasswordError } from '@/users/entities/errors'
-import { Password } from '@/users/entities/password'
+import { Password } from '@/users/entities'
 
 describe('Password validation', () => {
   test('should validate password with success', () => {
