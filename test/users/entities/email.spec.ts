@@ -1,4 +1,5 @@
 import { Email } from '@/users/entities'
+import { type InvalidEmailError } from '@/users/entities/errors'
 
 describe('Email validation', () => {
   test('should not accept empty strings', () => {
@@ -59,5 +60,18 @@ describe('Email validation', () => {
   test('should not accept email without an at-sign', () => {
     const email = 'anymail.com'
     expect(Email.validate(email)).toBeFalsy()
+  })
+})
+
+describe('Email creation', () => {
+  test('should create email with success', () => {
+    const email = 'any@mail.com'
+    const newEmail = Email.create(email) as Email
+    expect(newEmail.value).toBe(email)
+  })
+  test('should raise InvalidEmailError', () => {
+    const email = 'anymail.com'
+    const invalidEmail = Email.create(email) as InvalidEmailError
+    expect(invalidEmail.message).toBe(`Invalid email: ${email}.`)
   })
 })
