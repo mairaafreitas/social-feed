@@ -7,7 +7,7 @@ export class Email {
     this.value = email
   }
 
-  public static create (email: string): InvalidEmailError | Email {
+  public static create (email: string): Email | InvalidEmailError {
     if (Email.validate(email)) {
       return new Email(email)
     }
@@ -15,39 +15,29 @@ export class Email {
   }
 
   public static validate (email: string): boolean {
-    if (email === '') {
-      return false
-    }
+    return (
+      Email.hasValidFormat(email) &&
+      Email.hasValidLength(email)
+    )
+  }
 
-    if (email.length > 320) {
-      return false
-    }
-
+  private static hasValidFormat (email: string): boolean {
     const emailRegex =
       /^[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/
 
-    if (!emailRegex.test(email)) {
+    return emailRegex.test(email)
+  }
+
+  private static hasValidLength (email: string): boolean {
+    if (email.length === 0 || email.length > 320) {
       return false
     }
 
     const [local, domain] = email.split('@')
-    if (local.length > 64 || local.length === 0) {
-      return false
-    }
-
-    if (domain.length > 255 || domain.length === 0) {
-      return false
-    }
-
-    const domainParts = domain.split('.')
-    if (
-      domainParts.some(function (part) {
-        return part.length > 63
-      })
-    ) {
-      return false
-    }
-
-    return true
+    return (
+      local.length > 0 && local.length <= 64 &&
+      domain.length > 0 && domain.length <= 255 &&
+      domain.split('.').every(part => part.length <= 63)
+    )
   }
 }
