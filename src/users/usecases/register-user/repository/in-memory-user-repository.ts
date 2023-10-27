@@ -7,11 +7,13 @@ export class InMemoryUserRepository implements UserRepository {
     this.repository = repository
   }
 
-  async add (user: UserData): Promise<void> {
-    const exists = await this.exists(user)
-    if (!exists) {
-      this.repository.push(user)
+  async add (user: UserData): Promise<UserData> {
+    const userExist = await this.exists(user)
+    if (userExist !== false) {
+      return userExist as UserData
     }
+    this.repository.push(user)
+    return user
   }
 
   async findUserByEmail (email: string): Promise<UserData | null> {
@@ -23,11 +25,11 @@ export class InMemoryUserRepository implements UserRepository {
     return this.repository
   }
 
-  async exists (user: UserData): Promise<boolean> {
-    const foundUser = await this.findUserByEmail(user.email)
-    if (foundUser == null) {
-      return false
+  async exists (user: UserData): Promise<UserData | boolean> {
+    const result = await this.findUserByEmail(user.email)
+    if (result != null) {
+      return result
     }
-    return true
+    return false
   }
 }
