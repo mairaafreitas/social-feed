@@ -15,17 +15,17 @@ export class User {
   static create (userData: UserData): User | InvalidNameError | InvalidEmailError | InvalidPasswordError {
     const nameOrError = Name.create(userData.name)
     if (nameOrError instanceof InvalidNameError) {
-      throw nameOrError
+      return nameOrError
     }
 
     const emailOrError = Email.create(userData.email)
     if (emailOrError instanceof InvalidEmailError) {
-      throw emailOrError
+      return emailOrError
     }
 
     const passwordOrError = Password.create(userData.password)
     if (passwordOrError instanceof InvalidPasswordError) {
-      throw passwordOrError
+      return passwordOrError
     }
 
     const name: Name = nameOrError
