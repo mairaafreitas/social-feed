@@ -4,7 +4,7 @@ export const validateRequestBody = (requiredParams: string[], request: HttpReque
   const missingParams: string[] = []
 
   for (const param of requiredParams) {
-    if ((request.body[param] in request.body)) {
+    if (!(param in request.body)) {
       missingParams.push(param)
     }
   }
