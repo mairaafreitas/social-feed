@@ -1,5 +1,7 @@
+import { type Encoder } from '@/shared/usecases/ports'
 import { type HttpRequest, type HttpResponse } from '@/shared/web-controllers/ports'
 import { type UserData } from '@/users/entities'
+import { BcryptEncoder } from '@/users/infra/encoder'
 import { type RegisterUserUseCase } from '@/users/usecases/ports'
 import { RegisterUser } from '@/users/usecases/register-user'
 import { type UserRepository } from '@/users/usecases/register-user/ports'
@@ -9,8 +11,9 @@ import { RegisterUserController } from '@/users/web-controllers/register-user-co
 describe('Register user web controller', () => {
   const users: UserData[] = []
   const repo: UserRepository = new InMemoryUserRepository(users)
+  const encoder: Encoder = new BcryptEncoder(10)
   const registerUseCase: RegisterUserUseCase = new RegisterUser(
-    repo
+    repo, encoder
   )
   const controller: RegisterUserController = new RegisterUserController(registerUseCase)
 
@@ -31,7 +34,8 @@ describe('Register user web controller', () => {
     }
     const response: HttpResponse = await controller.handle(request)
     expect(response.statusCode).toEqual(200)
-    expect(response.body).toEqual(request.body)
+    expect(response.body.name).toEqual(request.body.name)
+    expect(response.body.email).toEqual(request.body.email)
   })
 
   test('should return status code 400 when request is missing user name', async () => {

@@ -1,16 +1,19 @@
+import { type Encoder } from '@/shared/usecases/ports'
 import { type UserData } from '@/users/entities'
 import { InvalidEmailError } from '@/users/entities/errors'
+import { BcryptEncoder } from '@/users/infra/encoder'
 import { RegisterUser } from '@/users/usecases/register-user'
 import { type UserRepository } from '@/users/usecases/register-user/ports'
 import { InMemoryUserRepository } from '@/users/usecases/register-user/repository'
 
 describe('Register user use-case', () => {
+  const users: UserData[] = []
+  const userRepository: UserRepository = new InMemoryUserRepository(users)
+  const encoder: Encoder = new BcryptEncoder(10)
+  const registerUserUseCase: RegisterUser = new RegisterUser(
+    userRepository, encoder
+  )
   test('should add user with complete data to user Repository', async () => {
-    const users: UserData[] = []
-    const userRepository: UserRepository = new InMemoryUserRepository(users)
-    const registerUserUseCase: RegisterUser = new RegisterUser(
-      userRepository
-    )
     const name = 'name'
     const email = 'email@email.com'
     const password = 'Xpassword1*'
@@ -19,7 +22,6 @@ describe('Register user use-case', () => {
     const response = await registerUserUseCase.perform(userData) as UserData
     expect(response.name).toBe(name)
     expect(response.email).toBe(email)
-    expect(response.password).toBe(password)
 
     const addedUser = await userRepository.findUserByEmail('email@email.com') as UserData
     expect(addedUser.name).toBe(name)
@@ -27,11 +29,6 @@ describe('Register user use-case', () => {
   })
 
   test('should not add user with invalid email', async () => {
-    const users: UserData[] = []
-    const userRepository: UserRepository = new InMemoryUserRepository(users)
-    const registerUserUseCase: RegisterUser = new RegisterUser(
-      userRepository
-    )
     const name = 'name'
     const email = 'email@emailcom'
     const password = 'Xpassword1*'
